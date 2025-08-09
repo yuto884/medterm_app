@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <title>医療用語説明アプリ</title>
+</head>
+<body>
+  <h1>Hello, world! 医療用語説明アプリへようこそ</h1>
+
+  <!-- 入力フォーム -->
+  <form action="/result" method="post">
+    <label for="term">医療用語を入力してください:</label><br>
+    <input type="text" id="term" name="term" required><br><br>
+    <input type="submit" value="探索">
+  </form>
+
+  <!-- 曖昧検索用入力 -->
+  <input type="text" id="search-box" placeholder="医療用語を入力してください">
+  <ul id="suggestions"></ul>
+
+  <!-- JavaScript（formの外に出す） -->
+  <script>
+    document.getElementById('search-box').addEventListener('input', function () {
+        const query = this.value;
+        if (query.length === 0) {
+            document.getElementById('suggestions').innerHTML = '';
+            return;
+        }
+
+        fetch('/search', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({ query: query })
+        })
+        .then(response => response.json())
+        .then(data => {
+            const list = document.getElementById('suggestions');
+            list.innerHTML = '';
+            data.forEach(item => {
+                const li = document.createElement('li');
+                li.textContent = item;
+                li.addEventListener('click', function () {
+                    document.getElementById('search-box').value = this.textContent;
+                });
+                list.appendChild(li);
+            });
+        });
+    });
+  </script>
+</body>
+</html>
